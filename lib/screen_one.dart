@@ -10,17 +10,16 @@ class ScreenOne extends StatefulWidget {
       : super(key: key);
 
   @override
-  _ScreenOneState createState() => _ScreenOneState();
+  ScreenOneState createState() => ScreenOneState();
 }
 
-class _ScreenOneState extends State<ScreenOne> {
-  String readData = '';
+class ScreenOneState extends State<ScreenOne> {
   List<int> allValues = []; // Accumulate all values received
 
   void readContinuousData() {
     for (BluetoothService service in widget.services) {
       for (BluetoothCharacteristic c in service.characteristics) {
-        if (c.properties.read) {
+        if (c.properties.read || c.properties.notify) {
           // Start reading data continuously in a loop
           readDataContinuous(c);
         }
@@ -28,20 +27,18 @@ class _ScreenOneState extends State<ScreenOne> {
     }
   }
 
-  void readDataContinuous(BluetoothCharacteristic characteristic) async {
-    while (true) {
-      List<int> value = await characteristic.read();
-      print('Received data: $value');
+  void readDataContinuous(BluetoothCharacteristic characteristic) {
+    characteristic.setNotifyValue(true);
 
-      allValues.addAll(value); // Accumulate the received values
+    characteristic.lastValueStream.listen((value) {
+      // Convert received data to numeric values
+      List<int> numericValues = value.map((byte) => byte).toList();
 
+      // Update the UI with the received numeric values
       setState(() {
-        readData =
-            allValues.toString() + '\n'; // Display all accumulated values
-        print('Read data: $readData');
+        allValues.add(numericValues.first); // Assuming only one int is sent
       });
-      await Future.delayed(Duration(seconds: 1)); // Adjust delay as needed
-    }
+    });
   }
 
   @override
@@ -61,7 +58,7 @@ class _ScreenOneState extends State<ScreenOne> {
             onPressed: () {
               sendData('hello from flutter', widget.services, context);
             },
-            child: Text('Send'),
+            child: const Text('Send'),
           ),
           Expanded(
             child: Container(
