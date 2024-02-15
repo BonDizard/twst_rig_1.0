@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:trust_rig_version_one/send_data.dart';
+import 'package:trust_rig_version_one/vi.dart';
 
 class ScreenOne extends StatefulWidget {
   final List<BluetoothService> services;
@@ -14,8 +15,10 @@ class ScreenOne extends StatefulWidget {
 }
 
 class ScreenOneState extends State<ScreenOne> {
-  List<int> allValues = []; // Accumulate all values received
-
+  double voltage = 0.0;
+  double current = 0.0;
+  List<VoltageCurrentTimeData> voltageDataPoints = [];
+  List<VoltageCurrentTimeData> currentDataPoints = [];
   void readContinuousData() {
     for (BluetoothService service in widget.services) {
       for (BluetoothCharacteristic c in service.characteristics) {
@@ -27,16 +30,52 @@ class ScreenOneState extends State<ScreenOne> {
     }
   }
 
+  void processReceivedData(String receivedString) {
+    print('recived string: $receivedString');
+    try {
+      // Use regular expressions to extract voltage and current values
+      RegExp voltageRegex = RegExp(r'v:([\d.]+)', caseSensitive: false);
+      RegExp currentRegex = RegExp(r'i:([\d.]+)', caseSensitive: false);
+
+      // Extract voltage value
+      RegExpMatch? voltageMatch = voltageRegex.firstMatch(receivedString);
+      voltage = voltageMatch != null
+          ? double.tryParse(voltageMatch.group(1)!) ?? 0.0
+          : 0.0;
+
+      // Extract current value
+      RegExpMatch? currentMatch = currentRegex.firstMatch(receivedString);
+      current = currentMatch != null
+          ? double.tryParse(currentMatch.group(1)!) ?? 0.0
+          : 0.0;
+
+      // Add timestamped data point
+      DateTime currentTime = DateTime.now();
+      voltageDataPoints.add(VoltageCurrentTimeData(
+          currentTime, voltage, 0.0)); // Adding 0.0 for current
+      currentDataPoints.add(VoltageCurrentTimeData(
+          currentTime, 0.0, current)); // Adding 0.0 for voltage
+
+      print('Voltage: $voltage, Current: $current');
+      // print('voltageDataPoints: $voltageDataPoints');
+      // print('currentDataPoints: $currentDataPoints');
+
+      setState(() {});
+    } catch (e) {
+      print('Error processing received data: $e');
+    }
+  }
+
   void readDataContinuous(BluetoothCharacteristic characteristic) {
     characteristic.setNotifyValue(true);
-
     characteristic.lastValueStream.listen((value) {
       // Convert received data to numeric values
-      List<int> numericValues = value.map((byte) => byte).toList();
+      String receivedString = String.fromCharCodes(value);
+      processReceivedData(receivedString);
 
       // Update the UI with the received numeric values
       setState(() {
-        allValues.add(numericValues.first); // Assuming only one int is sent
+        // Assuming only one int is sent
       });
     });
   }
@@ -60,19 +99,9 @@ class ScreenOneState extends State<ScreenOne> {
             },
             child: const Text('Send'),
           ),
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.all(16.0),
-              padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                border: Border.all(color: Colors.blueAccent),
-                borderRadius: BorderRadius.circular(10.0),
-              ),
-              child: SingleChildScrollView(
-                reverse: true,
-                child: Text(allValues.toString()),
-              ),
-            ),
+          SingleChildScrollView(
+            reverse: true,
+            child: Text('voltage = $voltage\n current = $current'),
           ),
         ],
       ),

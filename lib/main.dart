@@ -21,7 +21,13 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Colors.deepPurple,
+          surface: Colors.black,
+          primary: Colors.red,
+          background: Colors.green,
+          secondary: Colors.blue,
+        ),
         useMaterial3: true,
       ),
       home: const PermissionsPage(),

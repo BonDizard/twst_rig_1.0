@@ -158,7 +158,7 @@ class ScanPageState extends State<ScanPage> {
         child: Text(
           r.rssi.toString(),
           style: TextStyle(
-            color: Theme.of(context).colorScheme.surface,
+            color: Colors.deepPurple,
           ),
         ),
       ),
@@ -170,7 +170,7 @@ class ScanPageState extends State<ScanPage> {
     return Text(
       r.device.id.id,
       style: TextStyle(
-        color: Theme.of(context).colorScheme.surface,
+        color: Colors.deepPurple,
       ),
     );
   }
@@ -192,7 +192,7 @@ class ScanPageState extends State<ScanPage> {
     return Text(
       name,
       style: TextStyle(
-        color: Theme.of(context).colorScheme.surface,
+        color: Colors.deepPurple,
       ),
     );
   }
@@ -200,7 +200,7 @@ class ScanPageState extends State<ScanPage> {
   /* Widget for BLE icon */
   Widget leading(ScanResult r) {
     return CircleAvatar(
-      backgroundColor: Theme.of(context).colorScheme.secondary,
+      backgroundColor: Colors.deepPurple,
       child: Icon(
         Icons.bluetooth,
         color: Theme.of(context).colorScheme.background,
@@ -248,7 +248,7 @@ class ScanPageState extends State<ScanPage> {
       padding: const EdgeInsets.only(left: 8, right: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.secondary.withOpacity(0.5),
+          color: Colors.deepPurple.withOpacity(0.5),
           borderRadius: BorderRadius.circular(
               20.0), // Set the border radius to achieve rounded edges
         ),
@@ -272,7 +272,7 @@ class ScanPageState extends State<ScanPage> {
           child: Text(
             'NEURASTIM',
             style: TextStyle(
-              color: Theme.of(context).colorScheme.surface,
+              color: Colors.deepPurple,
               fontWeight: FontWeight.bold,
               fontSize: 20,
             ),
@@ -284,12 +284,12 @@ class ScanPageState extends State<ScanPage> {
           IconButton(
             color: Colors.transparent,
             onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => ScanPage()));
+              Navigator.push(
+                  context, MaterialPageRoute(builder: (context) => ScanPage()));
             },
             icon: Icon(
               Icons.settings,
-              color: Theme.of(context).colorScheme.surface,
+              color: Colors.deepPurple,
             ),
           )
         ],
@@ -308,7 +308,7 @@ class ScanPageState extends State<ScanPage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Theme.of(context).colorScheme.surface,
+        backgroundColor: Colors.deepPurple,
         onPressed: scan,
         // Display stop icon if scanning, search icon if not scanning
         child: Icon(
