@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
-import 'package:trust_rig_version_one/send_data.dart';
-import 'package:trust_rig_version_one/vi.dart';
-
+import 'package:trust_rig_version_one/custom_appbar.dart';
 import 'date_time.dart';
 import 'db_helper.dart';
 
@@ -93,6 +91,7 @@ class ScreenOneState extends State<ScreenOne> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: CustomAppBar(),
       body: FutureBuilder<List<Map<String, dynamic>>>(
         future: _dbHelper.getAllData(),
         builder: (context, snapshot) {
