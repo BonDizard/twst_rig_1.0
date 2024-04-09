@@ -1,9 +1,8 @@
-import 'dart:io';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
 
 class DbHelper {
-  var _database;
+  late Database _database;
 
   Future<void> initializeDatabase() async {
     String path = await getDatabasesPath();
@@ -33,6 +32,14 @@ class DbHelper {
 
   Future<List<Map<String, dynamic>>> getAllData() async {
     return await _database.query('data');
+  }
+
+  Future<void> resetDatabase() async {
+    await initializeDatabase(); // Ensure the database is initialized
+    if (_database == null) {
+      throw Exception('Database is not initialized');
+    }
+    await _database.delete('data');
   }
 
   void dispose() {

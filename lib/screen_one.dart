@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:trust_rig_version_one/custom_appbar.dart';
@@ -18,23 +19,16 @@ class ScreenOne extends StatefulWidget {
 class ScreenOneState extends State<ScreenOne> {
   TextEditingController sendString = TextEditingController();
   late DbHelper _dbHelper;
-
-  @override
-  void initState() {
-    super.initState();
-    _dbHelper = DbHelper();
-    _initializeDatabase();
-  }
+  bool _isDbInitialized =
+      false; // Track whether database initialization is complete
 
   Future<void> _initializeDatabase() async {
-    await _dbHelper.initializeDatabase();
-    readContinuousData();
-  }
-
-  @override
-  void dispose() {
-    _dbHelper.dispose();
-    super.dispose();
+    _dbHelper = DbHelper();
+    await _dbHelper.initializeDatabase(); // Initialize the database
+    setState(() {
+      _isDbInitialized = true; // Database initialization is complete
+    });
+    readContinuousData(); // Start reading data once database is initialized
   }
 
   void readContinuousData() {
@@ -49,7 +43,7 @@ class ScreenOneState extends State<ScreenOne> {
   }
 
   void processReceivedData(String receivedString) {
-    print('recived string: $receivedString');
+    print('received string: $receivedString');
     try {
       // Use regular expressions to extract voltage and current values
       RegExp voltageRegex = RegExp(r'v:([\d.]+)', caseSensitive: false);
@@ -72,7 +66,7 @@ class ScreenOneState extends State<ScreenOne> {
 
       // Insert data into the database
       _dbHelper.insertData(currentTime, voltage, current);
-
+      setState(() {});
       print('Voltage: $voltage, Current: $current');
     } catch (e) {
       print('Error processing received data: $e');
@@ -88,56 +82,83 @@ class ScreenOneState extends State<ScreenOne> {
     });
   }
 
+  StreamController<void> _updateController = StreamController<void>.broadcast();
+
+  @override
+  void dispose() {
+    _updateController.close();
+    super.dispose();
+  }
+
+  void _onDataInserted() {
+    _updateController.add(null); // Notify the StreamBuilder to rebuild
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeDatabase();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
-        future: _dbHelper.getAllData(),
+      appBar: CustomAppBar(dbHelper: _dbHelper),
+      body: StreamBuilder<void>(
+        stream: _updateController.stream,
         builder: (context, snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
-            return Center(child: Text('Error: ${snapshot.error}'));
-          } else {
-            List<Map<String, dynamic>> data = snapshot.data!;
-            return SingleChildScrollView(
-              scrollDirection: Axis.vertical,
-              child: DataTable(
-                columns: const <DataColumn>[
-                  DataColumn(label: Text('Time')),
-                  DataColumn(label: Text('Voltage')),
-                  DataColumn(label: Text('Current')),
-                ],
-                rows: List.generate(
-                  data.length,
-                  (index) => DataRow(cells: [
-                    DataCell(
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Text(
-                            DateTimeFormatter.formatTime(
-                              DateTime.parse(data[index]['timestamp']),
-                            ),
+          return FutureBuilder<List<Map<String, dynamic>>>(
+            future: _dbHelper.getAllData(),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return Center(child: CircularProgressIndicator());
+              } else if (snapshot.hasError) {
+                return Center(child: Text('Error: ${snapshot.error}'));
+              } else {
+                List<Map<String, dynamic>>? data = snapshot.data;
+                if (data == null || data.isEmpty) {
+                  return Center(child: Text('No data available yet'));
+                }
+                return SingleChildScrollView(
+                  reverse: true,
+                  scrollDirection: Axis.vertical,
+                  child: DataTable(
+                    columns: const <DataColumn>[
+                      DataColumn(label: Text('Time')),
+                      DataColumn(label: Text('Voltage')),
+                      DataColumn(label: Text('Current')),
+                    ],
+                    rows: List.generate(
+                      data.length,
+                      (index) => DataRow(cells: [
+                        DataCell(
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                DateTimeFormatter.formatTime(
+                                  DateTime.parse(data[index]['timestamp']),
+                                ),
+                              ),
+                              Text(
+                                DateTimeFormatter.formatDate(
+                                  DateTime.parse(data[index]['timestamp']),
+                                ),
+                                style: TextStyle(fontSize: 8),
+                              ),
+                            ],
                           ),
-                          Text(
-                            DateTimeFormatter.formatDate(
-                              DateTime.parse(data[index]['timestamp']),
-                            ),
-                            style: TextStyle(fontSize: 8),
-                          ),
-                        ],
-                      ),
+                        ),
+                        DataCell(Text(data[index]['voltage'].toString())),
+                        DataCell(Text(data[index]['current'].toString())),
+                      ]),
                     ),
-                    DataCell(Text(data[index]['voltage'].toString())),
-                    DataCell(Text(data[index]['current'].toString())),
-                  ]),
-                ),
-              ),
-            );
-          }
+                  ),
+                );
+              }
+            },
+          );
         },
       ),
     );
