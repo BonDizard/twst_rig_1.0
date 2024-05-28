@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -85,7 +86,7 @@ class PermissionsPageState extends State<PermissionsPage> {
                     child: Text(
                       'Turn on the bluetooth',
                       style: TextStyle(
-                        color: Theme.of(context).colorScheme.surface,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ),
