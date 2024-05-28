@@ -38,16 +38,6 @@ class DbHelper {
     double rpm,
     double throttle,
   ) async {
-    print('Inserting data:');
-    print('  timestamp: ${timestamp.toIso8601String()}');
-    print('  voltage: $voltage');
-    print('  current: $current');
-    print('  torque: $torque');
-    print('  temperature: $temperature');
-    print('  thrust: $thrust');
-    print('  power: $power');
-    print('  rpm: $rpm');
-    print('  throttle: $throttle');
     try {
       await _database.insert(
         'data',
@@ -67,7 +57,6 @@ class DbHelper {
     } catch (e) {
       print('Error while inserting: ${e.toString()}');
     }
-    print('Data inserted successfully');
   }
 
   Future<List<Map<String, dynamic>>> getAllData() async {

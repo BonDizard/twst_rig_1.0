@@ -20,13 +20,13 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Flutter Demo',
+      title: 'test rig',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
           seedColor: Colors.deepPurple,
           surface: Colors.black,
-          primary: Colors.red,
-          background: Colors.green,
+          primary: Colors.blue,
+          background: Colors.white,
           secondary: Colors.blue,
         ),
         useMaterial3: true,

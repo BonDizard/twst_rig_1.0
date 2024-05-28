@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:trust_rig_version_one/custom_appbar.dart';
+import 'package:trust_rig_version_one/model.dart';
 
 import 'date_time.dart';
 import 'db_helper.dart';
@@ -45,7 +46,6 @@ class ScreenOneState extends State<ScreenOne> {
   }
 
   void processReceivedData(String receivedString) {
-    print('received string: $receivedString');
     try {
       // Use regular expressions to extract voltage and current values
       RegExp voltageRegex = RegExp(r'v:([\d.]+)', caseSensitive: false);
@@ -75,7 +75,7 @@ class ScreenOneState extends State<ScreenOne> {
 
       // Extract current value
       RegExpMatch? tempMatch = tempRegex.firstMatch(receivedString);
-      double temp =
+      double temperature =
           tempMatch != null ? double.tryParse(tempMatch.group(1)!) ?? 0.0 : 0.0;
 
       RegExpMatch? powerMatch = powerRegex.firstMatch(receivedString);
@@ -98,21 +98,30 @@ class ScreenOneState extends State<ScreenOne> {
       // Add timestamped data point
       DateTime currentTime = DateTime.now();
 
+      ParametersModel(
+        timestamp: currentTime,
+        voltage: voltage,
+        current: current,
+        power: power,
+        rpm: rpm,
+        temperature: temperature,
+        throttle: throttle,
+        thrust: thrust,
+        torque: torque,
+      );
       // Insert data into the database
       _dbHelper.insertData(
         currentTime,
         voltage,
         current,
         torque,
-        temp,
+        temperature,
         thrust,
         power,
         rpm,
         throttle,
       );
       setState(() {});
-      print(
-          'Temperature: $temp, Thrust: $thrust, Voltage: $voltage, Current: $current, Power: $power, RPM: $rpm, Throttle: $throttle, Torque: $torque');
     } catch (e) {
       print('Error processing received data: $e');
     }

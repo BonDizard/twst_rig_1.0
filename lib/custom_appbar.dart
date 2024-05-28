@@ -69,14 +69,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       backgroundColor: Colors.transparent,
+      elevation: 0,
       leading: IconButton(
         onPressed: () async {
           await reset(dbHelper, context);
         },
         icon: Icon(Icons.restart_alt),
       ),
+      title: Text('Test Rig'),
       actions: [
-        ElevatedButton(
+        TextButton(
           onPressed: saveToExcel,
           child: Text('save'),
         ),

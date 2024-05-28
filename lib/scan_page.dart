@@ -50,7 +50,7 @@ class ScanPageState extends State<ScanPage> {
 
     // Check if both Bluetooth and location permissions are granted
     if (bluetoothStatus.isGranted && locationStatus.isGranted) {
-      final isBluetoothEnabled = await FlutterBluePlus.isAvailable;
+      final isBluetoothEnabled = await FlutterBluePlus.isSupported;
       if (kDebugMode) {
         print('Bluetooth Status: $bluetoothStatus');
         print('Location Status: $locationStatus');
@@ -116,12 +116,12 @@ class ScanPageState extends State<ScanPage> {
             FlutterBluePlus.scanResults.listen((List<ScanResult> results) {
           // Updated parameter type
           for (ScanResult r in results) {
-            if (!seen.contains(r.device.id.id)) {
+            if (!seen.contains(r.device.remoteId.str)) {
               if (kDebugMode) {
                 print(
-                    '${r.device.id.id}: "${r.advertisementData.localName}" found! rssi: ${r.rssi}');
+                    '${r.device.remoteId.str}: "${r.advertisementData.advName}" found! rssi: ${r.rssi}');
               }
-              seen.add(r.device.id.id);
+              seen.add(r.device.remoteId.str);
               setState(() {
                 scanResultList.add(r);
               });
@@ -169,7 +169,7 @@ class ScanPageState extends State<ScanPage> {
   /* Widget for device MAC address */
   Widget deviceMacAddress(ScanResult r) {
     return Text(
-      r.device.id.id,
+      r.device.remoteId.str,
       style: TextStyle(
         color: Colors.deepPurple,
       ),
@@ -180,12 +180,12 @@ class ScanPageState extends State<ScanPage> {
   Widget deviceName(ScanResult r) {
     String name = '';
 
-    if (r.device.localName.isNotEmpty) {
+    if (r.device.platformName.isNotEmpty) {
       // If device.name has a value
-      name = r.device.localName;
-    } else if (r.advertisementData.localName.isNotEmpty) {
-      // If advertisementData.localName has a value
-      name = r.advertisementData.localName;
+      name = r.device.platformName;
+    } else if (r.advertisementData.advName.isNotEmpty) {
+      // If advertisementData.advName has a value
+      name = r.advertisementData.advName;
     } else {
       // If both are empty, name is unknown
       name = 'N/A';
@@ -211,7 +211,7 @@ class ScanPageState extends State<ScanPage> {
 
   Future<void> onTap(ScanResult r) async {
     if (kDebugMode) {
-      print(r.device.localName);
+      print(r.device.platformName);
     }
 
     try {
