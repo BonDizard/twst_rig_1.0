@@ -1,7 +1,9 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:trust_rig_version_one/custom_appbar.dart';
+
 import 'date_time.dart';
 import 'db_helper.dart';
 
@@ -47,7 +49,13 @@ class ScreenOneState extends State<ScreenOne> {
     try {
       // Use regular expressions to extract voltage and current values
       RegExp voltageRegex = RegExp(r'v:([\d.]+)', caseSensitive: false);
-      RegExp currentRegex = RegExp(r'i:([\d.]+)', caseSensitive: false);
+      RegExp currentRegex = RegExp(r'c:([\d.]+)', caseSensitive: false);
+      RegExp thrustRegex = RegExp(r'h:([\d.]+)', caseSensitive: false);
+      RegExp tempRegex = RegExp(r't:([\d.]+)', caseSensitive: false);
+      RegExp powerRegex = RegExp(r'p:([\d.]+)', caseSensitive: false);
+      RegExp rpmRegex = RegExp(r'r:([\d.]+)', caseSensitive: false);
+      RegExp throttleRegex = RegExp(r'z:([\d.]+)', caseSensitive: false);
+      RegExp torqueRegex = RegExp(r'x:([\d.]+)', caseSensitive: false);
 
       // Extract voltage value
       RegExpMatch? voltageMatch = voltageRegex.firstMatch(receivedString);
@@ -60,14 +68,51 @@ class ScreenOneState extends State<ScreenOne> {
       double current = currentMatch != null
           ? double.tryParse(currentMatch.group(1)!) ?? 0.0
           : 0.0;
+      RegExpMatch? thrustMatch = thrustRegex.firstMatch(receivedString);
+      double thrust = thrustMatch != null
+          ? double.tryParse(thrustMatch.group(1)!) ?? 0.0
+          : 0.0;
 
+      // Extract current value
+      RegExpMatch? tempMatch = tempRegex.firstMatch(receivedString);
+      double temp =
+          tempMatch != null ? double.tryParse(tempMatch.group(1)!) ?? 0.0 : 0.0;
+
+      RegExpMatch? powerMatch = powerRegex.firstMatch(receivedString);
+      double power = powerMatch != null
+          ? double.tryParse(powerMatch.group(1)!) ?? 0.0
+          : 0.0;
+
+      RegExpMatch? rpmMatch = rpmRegex.firstMatch(receivedString);
+      double rpm =
+          rpmMatch != null ? double.tryParse(rpmMatch.group(1)!) ?? 0.0 : 0.0;
+
+      RegExpMatch? throttleMatch = throttleRegex.firstMatch(receivedString);
+      double throttle = throttleMatch != null
+          ? double.tryParse(throttleMatch.group(1)!) ?? 0.0
+          : 0.0;
+      RegExpMatch? torqueMatch = torqueRegex.firstMatch(receivedString);
+      double torque = torqueMatch != null
+          ? double.tryParse(torqueMatch.group(1)!) ?? 0.0
+          : 0.0;
       // Add timestamped data point
       DateTime currentTime = DateTime.now();
 
       // Insert data into the database
-      _dbHelper.insertData(currentTime, voltage, current);
+      _dbHelper.insertData(
+        currentTime,
+        voltage,
+        current,
+        torque,
+        temp,
+        thrust,
+        power,
+        rpm,
+        throttle,
+      );
       setState(() {});
-      print('Voltage: $voltage, Current: $current');
+      print(
+          'Temperature: $temp, Thrust: $thrust, Voltage: $voltage, Current: $current, Power: $power, RPM: $rpm, Throttle: $throttle, Torque: $torque');
     } catch (e) {
       print('Error processing received data: $e');
     }
@@ -123,10 +168,16 @@ class ScreenOneState extends State<ScreenOne> {
                   reverse: true,
                   scrollDirection: Axis.vertical,
                   child: DataTable(
-                    columns: const <DataColumn>[
+                    columns: <DataColumn>[
                       DataColumn(label: Text('Time')),
                       DataColumn(label: Text('Voltage')),
                       DataColumn(label: Text('Current')),
+                      DataColumn(label: Text('Torque')),
+                      DataColumn(label: Text('Temperature')),
+                      DataColumn(label: Text('Thrust')),
+                      DataColumn(label: Text('Power')),
+                      DataColumn(label: Text('RPM')),
+                      DataColumn(label: Text('Throttle')),
                     ],
                     rows: List.generate(
                       data.length,
@@ -152,6 +203,12 @@ class ScreenOneState extends State<ScreenOne> {
                         ),
                         DataCell(Text(data[index]['voltage'].toString())),
                         DataCell(Text(data[index]['current'].toString())),
+                        DataCell(Text(data[index]['torque'].toString())),
+                        DataCell(Text(data[index]['temperature'].toString())),
+                        DataCell(Text(data[index]['thrust'].toString())),
+                        DataCell(Text(data[index]['power'].toString())),
+                        DataCell(Text(data[index]['rpm'].toString())),
+                        DataCell(Text(data[index]['throttle'].toString())),
                       ]),
                     ),
                   ),

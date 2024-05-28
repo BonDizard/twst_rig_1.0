@@ -2,8 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:open_file/open_file.dart';
-import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import 'package:trust_rig_version_one/show_snack_bar.dart';
 
 import 'db_helper.dart';
@@ -21,12 +21,25 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     sheet.getRangeByName('A2').setText('time');
     sheet.getRangeByName('B2').setText('voltage');
     sheet.getRangeByName('C2').setText('current');
+    sheet.getRangeByName('D2').setText('torque');
+    sheet.getRangeByName('E2').setText('temperature');
+    sheet.getRangeByName('F2').setText('thrust');
+    sheet.getRangeByName('G2').setText('power');
+    sheet.getRangeByName('H2').setText('rpm');
+    sheet.getRangeByName('I2').setText('throttle');
+
     // Insert data into Excel row by row
-    int rowIndex = 4; // Start inserting data from row 2
+    int rowIndex = 4; // Start inserting data from row 4
     for (Map<String, dynamic> row in data) {
       sheet.getRangeByName('A$rowIndex').setText(row['timestamp']);
       sheet.getRangeByName('B$rowIndex').setText(row['voltage'].toString());
       sheet.getRangeByName('C$rowIndex').setText(row['current'].toString());
+      sheet.getRangeByName('D$rowIndex').setText(row['torque'].toString());
+      sheet.getRangeByName('E$rowIndex').setText(row['temperature'].toString());
+      sheet.getRangeByName('F$rowIndex').setText(row['thrust'].toString());
+      sheet.getRangeByName('G$rowIndex').setText(row['power'].toString());
+      sheet.getRangeByName('H$rowIndex').setText(row['rpm'].toString());
+      sheet.getRangeByName('I$rowIndex').setText(row['throttle'].toString());
       rowIndex++;
     }
 

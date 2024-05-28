@@ -1,5 +1,5 @@
-import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:sqflite/sqflite.dart';
 
 class DbHelper {
   late Database _database;
@@ -10,24 +10,64 @@ class DbHelper {
       join(path, 'my_database.db'),
       onCreate: (db, version) {
         return db.execute(
-          'CREATE TABLE data(timestamp TEXT PRIMARY KEY, voltage REAL, current REAL)',
+          'CREATE TABLE data('
+          'timestamp TEXT PRIMARY KEY, '
+          'voltage REAL, '
+          'current REAL, '
+          'torque REAL, '
+          'temperature REAL, ' // Ensure temperature column is included
+          'thrust REAL, '
+          'power REAL, '
+          'rpm REAL, '
+          'throttle REAL'
+          ')',
         );
       },
-      version: 1,
+      version: 2,
     );
   }
 
   Future<void> insertData(
-      DateTime timestamp, double voltage, double current) async {
-    await _database.insert(
-      'data',
-      {
-        'timestamp': timestamp.toIso8601String(),
-        'voltage': voltage,
-        'current': current
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    DateTime timestamp,
+    double voltage,
+    double current,
+    double torque,
+    double temperature,
+    double thrust,
+    double power,
+    double rpm,
+    double throttle,
+  ) async {
+    print('Inserting data:');
+    print('  timestamp: ${timestamp.toIso8601String()}');
+    print('  voltage: $voltage');
+    print('  current: $current');
+    print('  torque: $torque');
+    print('  temperature: $temperature');
+    print('  thrust: $thrust');
+    print('  power: $power');
+    print('  rpm: $rpm');
+    print('  throttle: $throttle');
+    try {
+      await _database.insert(
+        'data',
+        {
+          'timestamp': timestamp.toIso8601String(),
+          'voltage': voltage,
+          'current': current,
+          'torque': torque,
+          'temperature': temperature,
+          'thrust': thrust,
+          'power': power,
+          'rpm': rpm,
+          'throttle': throttle
+        },
+        conflictAlgorithm: ConflictAlgorithm.replace,
+      );
+    } catch (e) {
+      print('Error while inserting: ${e.toString()}');
+    }
+    print('Data inserted successfully');
   }
 
   Future<List<Map<String, dynamic>>> getAllData() async {

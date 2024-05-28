@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -270,7 +271,7 @@ class ScanPageState extends State<ScanPage> {
       appBar: AppBar(
         title: Center(
           child: Text(
-            'NEURASTIM',
+            'thrust rig',
             style: TextStyle(
               color: Colors.deepPurple,
               fontWeight: FontWeight.bold,
