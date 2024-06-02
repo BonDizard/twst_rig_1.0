@@ -54,7 +54,7 @@ class DatabaseHelper {
       await db.insert(
         'data',
         {
-          'timestamp': parametersModel.timestamp.toIso8601String(),
+          'timestamp': parametersModel.timestamp,
           'voltage': parametersModel.voltage,
           'current': parametersModel.current,
           'torque': parametersModel.torque,

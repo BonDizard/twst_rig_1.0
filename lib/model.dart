@@ -1,5 +1,5 @@
 class ParametersModel {
-  final DateTime timestamp;
+  final String timestamp;
   final double voltage;
   final double current;
   final double torque;
@@ -67,7 +67,7 @@ class ParametersModel {
   }
 
   ParametersModel copyWith({
-    DateTime? timestamp,
+    String? timestamp,
     double? voltage,
     int? pwm,
     double? current,
@@ -109,7 +109,7 @@ class ParametersModel {
 
   factory ParametersModel.fromMap(Map<String, dynamic> map) {
     return ParametersModel(
-      timestamp: map['timestamp'] as DateTime,
+      timestamp: map['timestamp'] as String,
       voltage: map['voltage'] as double,
       current: map['current'] as double,
       torque: map['torque'] as double,

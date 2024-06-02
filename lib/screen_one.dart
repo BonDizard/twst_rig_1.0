@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
 import 'package:trust_rig_version_one/custom_appbar.dart';
+import 'package:trust_rig_version_one/drawer.dart';
 import 'package:trust_rig_version_one/model.dart';
 import 'package:trust_rig_version_one/providers.dart';
 
@@ -105,8 +108,9 @@ class ScreenOneState extends ConsumerState<ScreenOne> {
           : 0.0;
       // Add timestamped data point
       DateTime currentTime = DateTime.now();
+      String formatDate = DateFormat.jms().format(currentTime);
       final parameterModel = ParametersModel(
-        timestamp: currentTime,
+        timestamp: formatDate,
         voltage: voltage,
         current: current,
         power: power,
@@ -148,7 +152,12 @@ class ScreenOneState extends ConsumerState<ScreenOne> {
     final dataStream = ref.watch(getAllDataProvider);
 
     return Scaffold(
+      drawer: CustomDrawer(
+        device: widget.device,
+        services: widget.services,
+      ),
       appBar: CustomAppBar(
+        device: widget.device,
         child: IconButton(
           icon: Icon(
             _autoScrollEnabled ? Icons.pause : Icons.play_arrow,
@@ -165,59 +174,43 @@ class ScreenOneState extends ConsumerState<ScreenOne> {
           WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToEnd());
           return Column(
             children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  SizedBox(
-                    width: 21,
-                  ),
-                  Text('Timestamp'),
-                  Text('Thrust'),
-                  Text('Torque'),
-                  Text('Current'),
-                  Text('Voltage'),
-                  Text('Power'),
-                  Text('Temperature'),
-                  Text('SPEED'),
-                  Text('PWM'),
-                  Text('Throttle'),
-                ],
-              ),
               // Data
               Expanded(
                 child: SingleChildScrollView(
                   controller: _scrollController,
                   scrollDirection: Axis.vertical,
-                  child: DataTable(
-                    columns: const <DataColumn>[
-                      DataColumn(label: Text('Timestamp')),
-                      DataColumn(label: Text('Thrust')),
-                      DataColumn(label: Text('Torque')),
-                      DataColumn(label: Text('Current')),
-                      DataColumn(label: Text('Voltage')),
-                      DataColumn(label: Text('Power')),
-                      DataColumn(label: Text('Temperature')),
-                      DataColumn(label: Text('SPEED')),
-                      DataColumn(label: Text('PWM')),
-                      DataColumn(label: Text('Throttle')),
-                    ],
-                    rows: data.map((item) {
-                      return DataRow(
-                        cells: <DataCell>[
-                          DataCell(Text(item['timestamp'])),
-                          DataCell(Text(item['thrust'].toString())),
-                          DataCell(Text(item['torque'].toString())),
-                          DataCell(Text(item['current'].toString())),
-                          DataCell(Text(item['voltage'].toString())),
-                          DataCell(Text(item['power'].toString())),
-                          DataCell(Text(item['temperature'].toString())),
-                          DataCell(Text(item['speed'].toString())),
-                          DataCell(Text(item['pwm'].toString())),
-                          DataCell(Text(item['throttle'].toString())),
-                        ],
-                      );
-                    }).toList(),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: DataTable(
+                      columns: const <DataColumn>[
+                        DataColumn(label: Text('Timestamp\n(h : m : s)')),
+                        DataColumn(label: Text('Thrust\n(N)')),
+                        DataColumn(label: Text('Torque\n(N/m)')),
+                        DataColumn(label: Text('Current\n(A)')),
+                        DataColumn(label: Text('Voltage\n(V)')),
+                        DataColumn(label: Text('Power\n(W)')),
+                        DataColumn(label: Text('Temperature\n(°C)')),
+                        DataColumn(label: Text('Speed\n(rpm)')),
+                        DataColumn(label: Text('PWM\n(us)')),
+                        DataColumn(label: Text('Throttle\n(%)')),
+                      ],
+                      rows: data.map((item) {
+                        return DataRow(
+                          cells: <DataCell>[
+                            DataCell(Text(item['timestamp'])),
+                            DataCell(Text(item['thrust'].toString())),
+                            DataCell(Text(item['torque'].toString())),
+                            DataCell(Text(item['current'].toString())),
+                            DataCell(Text(item['voltage'].toString())),
+                            DataCell(Text(item['power'].toString())),
+                            DataCell(Text(item['temperature'].toString())),
+                            DataCell(Text(item['speed'].toString())),
+                            DataCell(Text(item['pwm'].toString())),
+                            DataCell(Text(item['throttle'].toString())),
+                          ],
+                        );
+                      }).toList(),
+                    ),
                   ),
                 ),
               ),

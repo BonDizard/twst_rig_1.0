@@ -7,7 +7,7 @@ final databaseProvider = Provider((ref) => DatabaseHelper());
 final getAllDataProvider =
     StreamProvider.autoDispose<List<Map<String, dynamic>>>((ref) async* {
   final databaseHelper = DatabaseHelper.instance;
-  yield* Stream.periodic(Duration(seconds: 1), (_) async {
+  yield* Stream.periodic(Duration(milliseconds: 500), (_) async {
     return await databaseHelper.fetchData();
   }).asyncMap((event) async => await event);
 });
