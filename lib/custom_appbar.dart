@@ -1,18 +1,19 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
+import 'package:trust_rig_version_one/providers.dart';
 import 'package:trust_rig_version_one/show_snack_bar.dart';
 
-import 'db_helper.dart';
+class CustomAppBar extends ConsumerWidget implements PreferredSizeWidget {
+  const CustomAppBar({super.key});
 
-class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const CustomAppBar({Key? key, required this.dbHelper}) : super(key: key);
-  final DbHelper dbHelper;
+  Future<void> saveToExcel({required WidgetRef ref}) async {
+    final dbHelper = ref.watch(databaseProvider);
 
-  Future<void> saveToExcel() async {
     List<Map<String, dynamic>> data = await dbHelper.getAllData();
 
     Workbook workbook = Workbook();
@@ -53,12 +54,10 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
     OpenFile.open(fileName);
   }
 
-  Future<void> reset(DbHelper dbHelper, BuildContext context) async {
+  Future<void> reset(
+      {required WidgetRef ref, required BuildContext context}) async {
     try {
-      // Ensure the database is initialized before resetting
-      await dbHelper.initializeDatabase();
-      // Execute SQL command to delete all data from the table
-      await dbHelper.resetDatabase();
+      ref.watch(databaseProvider).resetDatabase();
     } catch (e) {
       print('Error resetting database: $e');
     }
@@ -66,20 +65,22 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return AppBar(
       backgroundColor: Colors.transparent,
       elevation: 0,
       leading: IconButton(
         onPressed: () async {
-          await reset(dbHelper, context);
+          await reset(ref: ref, context: context);
         },
         icon: Icon(Icons.restart_alt),
       ),
       title: Text('Test Rig'),
       actions: [
         TextButton(
-          onPressed: saveToExcel,
+          onPressed: () {
+            saveToExcel(ref: ref);
+          },
           child: Text('save'),
         ),
       ],

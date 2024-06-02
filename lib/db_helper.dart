@@ -1,30 +1,46 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-class DbHelper {
-  late Database _database;
+class DatabaseHelper {
+  DatabaseHelper();
+  static final DatabaseHelper instance = DatabaseHelper._init();
 
-  Future<void> initializeDatabase() async {
-    String path = await getDatabasesPath();
-    _database = await openDatabase(
-      join(path, 'my_database.db'),
-      onCreate: (db, version) {
-        return db.execute(
-          'CREATE TABLE data('
-          'timestamp TEXT PRIMARY KEY, '
-          'voltage REAL, '
-          'current REAL, '
-          'torque REAL, '
-          'temperature REAL, ' // Ensure temperature column is included
-          'thrust REAL, '
-          'power REAL, '
-          'rpm REAL, '
-          'throttle REAL'
-          ')',
-        );
-      },
-      version: 2,
+  static Database? _database;
+
+  DatabaseHelper._init();
+
+  Future<Database> get database async {
+    if (_database != null) return _database!;
+    _database = await _initDB('data.db');
+    return _database!;
+  }
+
+  Future<Database> _initDB(String filePath) async {
+    final dbPath = await getDatabasesPath();
+    final path = join(dbPath, filePath);
+
+    return await openDatabase(path, version: 1, onCreate: _createDB);
+  }
+
+  Future _createDB(Database db, int version) async {
+    await db.execute(
+      'CREATE TABLE data('
+      'timestamp TEXT PRIMARY KEY, '
+      'voltage REAL, '
+      'current REAL, '
+      'torque REAL, '
+      'temperature REAL, '
+      'thrust REAL, '
+      'power REAL, '
+      'rpm REAL, '
+      'throttle REAL'
+      ')',
     );
+  }
+
+  Future<List<Map<String, dynamic>>> getAllData() async {
+    final db = await instance.database;
+    return await db.query('data');
   }
 
   Future<void> insertData(
@@ -39,7 +55,8 @@ class DbHelper {
     double throttle,
   ) async {
     try {
-      await _database.insert(
+      final db = await instance.database;
+      await db.insert(
         'data',
         {
           'timestamp': timestamp.toIso8601String(),
@@ -59,19 +76,19 @@ class DbHelper {
     }
   }
 
-  Future<List<Map<String, dynamic>>> getAllData() async {
-    return await _database.query('data');
+  Future<List<Map<String, dynamic>>> fetchData() async {
+    final db = await instance.database;
+    final result = await db.query('data');
+    return result;
   }
 
   Future<void> resetDatabase() async {
-    await initializeDatabase(); // Ensure the database is initialized
-    if (_database == null) {
-      throw Exception('Database is not initialized');
-    }
-    await _database.delete('data');
+    final db = await instance.database;
+    await db.delete('data');
   }
 
-  void dispose() {
-    _database.close();
+  Future close() async {
+    final db = await instance.database;
+    db.close();
   }
 }
