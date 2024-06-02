@@ -1,5 +1,6 @@
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
+import 'package:trust_rig_version_one/model.dart';
 
 class DatabaseHelper {
   DatabaseHelper();
@@ -32,7 +33,9 @@ class DatabaseHelper {
       'temperature REAL, '
       'thrust REAL, '
       'power REAL, '
-      'rpm REAL, '
+      // Add speed column here
+      'speed REAL, '
+      'pwm REAL, '
       'throttle REAL'
       ')',
     );
@@ -43,31 +46,24 @@ class DatabaseHelper {
     return await db.query('data');
   }
 
-  Future<void> insertData(
-    DateTime timestamp,
-    double voltage,
-    double current,
-    double torque,
-    double temperature,
-    double thrust,
-    double power,
-    double rpm,
-    double throttle,
-  ) async {
+  Future<void> insertData({
+    required ParametersModel parametersModel,
+  }) async {
     try {
       final db = await instance.database;
       await db.insert(
         'data',
         {
-          'timestamp': timestamp.toIso8601String(),
-          'voltage': voltage,
-          'current': current,
-          'torque': torque,
-          'temperature': temperature,
-          'thrust': thrust,
-          'power': power,
-          'rpm': rpm,
-          'throttle': throttle
+          'timestamp': parametersModel.timestamp.toIso8601String(),
+          'voltage': parametersModel.voltage,
+          'current': parametersModel.current,
+          'torque': parametersModel.torque,
+          'temperature': parametersModel.temperature,
+          'thrust': parametersModel.thrust,
+          'power': parametersModel.power,
+          'speed': parametersModel.speed, // Include speed in map
+          'pwm': parametersModel.pwm,
+          'throttle': parametersModel.throttle
         },
         conflictAlgorithm: ConflictAlgorithm.replace,
       );
@@ -83,8 +79,12 @@ class DatabaseHelper {
   }
 
   Future<void> resetDatabase() async {
-    final db = await instance.database;
-    await db.delete('data');
+    try {
+      final db = await instance.database;
+      await db.delete('data');
+    } catch (e) {
+      print('error deleting data base');
+    }
   }
 
   Future close() async {

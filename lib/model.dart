@@ -6,18 +6,20 @@ class ParametersModel {
   final double temperature;
   final double thrust;
   final double power;
-  final double rpm;
-  final double throttle;
+  final double speed;
+  final int pwm;
+  final int throttle;
 
   const ParametersModel({
     required this.timestamp,
+    required this.pwm,
     required this.voltage,
     required this.current,
     required this.torque,
     required this.temperature,
     required this.thrust,
     required this.power,
-    required this.rpm,
+    required this.speed,
     required this.throttle,
   });
 
@@ -33,7 +35,7 @@ class ParametersModel {
           temperature == other.temperature &&
           thrust == other.thrust &&
           power == other.power &&
-          rpm == other.rpm &&
+          speed == other.speed &&
           throttle == other.throttle);
 
   @override
@@ -45,7 +47,7 @@ class ParametersModel {
       temperature.hashCode ^
       thrust.hashCode ^
       power.hashCode ^
-      rpm.hashCode ^
+      speed.hashCode ^
       throttle.hashCode;
 
   @override
@@ -58,23 +60,26 @@ class ParametersModel {
         ' temperature: $temperature,' +
         ' thrust: $thrust,' +
         ' power: $power,' +
-        ' rpm: $rpm,' +
+        ' speed: $speed,' +
         ' throttle: $throttle,' +
+        ' pwm: $pwm,' +
         '}';
   }
 
   ParametersModel copyWith({
     DateTime? timestamp,
     double? voltage,
+    int? pwm,
     double? current,
     double? torque,
     double? temperature,
     double? thrust,
     double? power,
-    double? rpm,
-    double? throttle,
+    double? speed,
+    int? throttle,
   }) {
     return ParametersModel(
+      pwm: pwm ?? this.pwm,
       timestamp: timestamp ?? this.timestamp,
       voltage: voltage ?? this.voltage,
       current: current ?? this.current,
@@ -82,7 +87,7 @@ class ParametersModel {
       temperature: temperature ?? this.temperature,
       thrust: thrust ?? this.thrust,
       power: power ?? this.power,
-      rpm: rpm ?? this.rpm,
+      speed: speed ?? this.speed,
       throttle: throttle ?? this.throttle,
     );
   }
@@ -96,8 +101,9 @@ class ParametersModel {
       'temperature': this.temperature,
       'thrust': this.thrust,
       'power': this.power,
-      'rpm': this.rpm,
+      'speed': this.speed,
       'throttle': this.throttle,
+      'pwm': this.pwm,
     };
   }
 
@@ -110,8 +116,9 @@ class ParametersModel {
       temperature: map['temperature'] as double,
       thrust: map['thrust'] as double,
       power: map['power'] as double,
-      rpm: map['rpm'] as double,
-      throttle: map['throttle'] as double,
+      speed: map['speed'] as double,
+      pwm: map['pwm'] as int,
+      throttle: map['throttle'] as int,
     );
   }
 

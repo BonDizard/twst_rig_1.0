@@ -269,9 +269,10 @@ class ScanPageState extends State<ScanPage> {
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Center(
           child: Text(
-            'thrust rig',
+            'WING-STATION',
             style: TextStyle(
               color: Colors.deepPurple,
               fontWeight: FontWeight.bold,
@@ -281,19 +282,6 @@ class ScanPageState extends State<ScanPage> {
         ),
         elevation: 0,
         backgroundColor: Colors.transparent,
-        actions: [
-          IconButton(
-            color: Colors.transparent,
-            onPressed: () {
-              Navigator.push(
-                  context, MaterialPageRoute(builder: (context) => ScanPage()));
-            },
-            icon: Icon(
-              Icons.settings,
-              color: Colors.deepPurple,
-            ),
-          )
-        ],
       ),
       backgroundColor: Theme.of(context).colorScheme.background,
       body: Center(
